@@ -1,3 +1,5 @@
+package main;
+
 import physics.PhysicsSolver;
 
 import javax.swing.*;
