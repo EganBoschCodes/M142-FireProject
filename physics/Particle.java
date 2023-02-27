@@ -1,11 +1,14 @@
 package physics;
 
+import main.Main;
+
 import java.awt.*;
 
 public class Particle {
     public Vec2D position;
     private Vec2D lastPosition;
     public float r;
+    private float baselineR;
     public float mass = 1.0f;
     public float temp = 0.0f;
 
@@ -18,6 +21,7 @@ public class Particle {
         this.position = new Vec2D(x, y);
         this.lastPosition = new Vec2D(x, y);
         this.r = r;
+        this.baselineR = r;
 
         this.mass = r * r;
 
@@ -37,11 +41,13 @@ public class Particle {
     }
 
     public void constrain() {
-        position.x = Math.max(r, Math.min(800 - r, position.x));
+        position.x = Math.max(r, Math.min(Main.SCREEN_SIZE.width - r, position.x));
 
         if (position.y < r * 5) temp -= 0.05;
-        if (position.y > 600 - r * 5) temp += 0.045f + Math.random() / 20;
-        position.y = Math.max(r, Math.min(600 - r, position.y));
+        if (position.y > Main.SCREEN_SIZE.height - 30 && position.x > 100 && position.x < Main.SCREEN_SIZE.width - 100) temp += 0.03 + Math.random() / 10;
+        position.y = Math.max(r, Math.min(Main.SCREEN_SIZE.height - r, position.y));
+
+        //r = baselineR + temp / 5;
     }
 
     public void bounce(Particle other) {
@@ -60,8 +66,12 @@ public class Particle {
 
         float tempDiff = other.temp - temp;
 
-        temp += tempDiff * 0.02 * other.mass / mass;
-        other.temp -= tempDiff * 0.02 * mass / other.mass;
+        temp += tempDiff * PhysicsSolver.HEAT_TRANSFER * other.mass / mass;
+        other.temp -= tempDiff * PhysicsSolver.HEAT_TRANSFER * mass / other.mass;
+    }
+
+    public Vec2D getVelocity() {
+        return position.sub(lastPosition);
     }
 
     public void render(Graphics g) {

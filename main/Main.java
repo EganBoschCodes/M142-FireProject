@@ -1,6 +1,5 @@
 package main;
 
-import physics.PhysicsSolver;
 import physics.PhysicsThread;
 
 import javax.swing.*;
@@ -13,7 +12,7 @@ public class Main {
 
     private static PhysicsThread physicsThread = new PhysicsThread();
 
-    public static final Dimension SCREEN_SIZE = new Dimension(800, 600);
+    public static final Dimension SCREEN_SIZE = new Dimension(800, 1000);
 
 
     public static void initialize() throws InterruptedException {
