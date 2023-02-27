@@ -23,7 +23,7 @@ public class Frame extends JFrame {
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            setBackground(Color.WHITE);
+            setBackground(Color.BLACK);
 
             Graphics2D g2d = (Graphics2D)g.create();
             RenderingHints hints = new RenderingHints(
