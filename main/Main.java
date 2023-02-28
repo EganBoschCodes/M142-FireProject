@@ -7,7 +7,7 @@ import java.awt.*;
 
 public class Main {
 
-    private static Frame frame;
+    public static Frame frame;
 
 
     private static PhysicsThread physicsThread = new PhysicsThread();
@@ -36,8 +36,9 @@ public class Main {
         long frameCount = 0;
 
         while(true) {
-            frame.repaint();
-            Thread.sleep(16);
+            if (!frame.frameBuffers.isEmpty())
+                frame.repaint();
+            Thread.sleep(5);
         }
 
     }

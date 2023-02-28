@@ -59,6 +59,10 @@ public class Vec2D {
         y = vec.y;
     }
 
+    public boolean isNaN() {
+        return Float.isNaN(x) || Float.isNaN(y);
+    }
+
     public String toString() {
         return "{ x: " + x + ", y: " + y + " }";
     }

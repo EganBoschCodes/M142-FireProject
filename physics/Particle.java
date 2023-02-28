@@ -8,11 +8,8 @@ public class Particle {
     public Vec2D position;
     private Vec2D lastPosition;
     public float r;
-    private float baselineR;
     public float mass = 1.0f;
     public float temp = 0.0f;
-
-
 
 
     private Vec2D acceleration = new Vec2D(0, 0);
@@ -21,7 +18,6 @@ public class Particle {
         this.position = new Vec2D(x, y);
         this.lastPosition = new Vec2D(x, y);
         this.r = r;
-        this.baselineR = r;
 
         this.mass = r * r;
 
@@ -30,30 +26,52 @@ public class Particle {
     public void accelerate(float x, float y) {
         acceleration = acceleration.add(x, y);
     }
+    public void accelerate(Vec2D a) {
+        acceleration = acceleration.add(a);
+    }
 
     public void move() {
         Vec2D velocity = position.sub(lastPosition);
 
+        float velocityMag2 = velocity.mag2();
+
+        accelerate(velocity.mult(-0.001f * velocityMag2));
+
         lastPosition.copy(position);
-        position = position.add(velocity.mult(0.995f)).add(acceleration.mult(PhysicsSolver.DT * PhysicsSolver.DT));
+        position = position.add(velocity.add(acceleration.mult(PhysicsSolver.DT * PhysicsSolver.DT)));
 
         acceleration = new Vec2D(0, 0);
     }
 
     public void constrain() {
         position.x = Math.max(r, Math.min(Main.SCREEN_SIZE.width - r, position.x));
+        position.y = Math.max(-300, Math.min(Main.SCREEN_SIZE.height - r, position.y));
 
-        if (position.y < r * 5) temp -= 0.05;
-        if (position.y > Main.SCREEN_SIZE.height - 30 && position.x > 100 && position.x < Main.SCREEN_SIZE.width - 100) temp += 0.03 + Math.random() / 10;
-        position.y = Math.max(r, Math.min(Main.SCREEN_SIZE.height - r, position.y));
+        //if (position.y > Main.SCREEN_SIZE.height - r)
+            //accelerate(0, -(position.y - Main.SCREEN_SIZE.height + r)/10.0f);
 
-        //r = baselineR + temp / 5;
     }
 
-    public void bounce(Particle other) {
+    public void heat() {
+        if (position.y < -r * 5) { temp *= 0.99; return; }
+
+        float dist2 = position.sub(PhysicsSolver.HEATER_POSITION).mag2();
+        if (dist2 < PhysicsSolver.HEATER_RADIUS * PhysicsSolver.HEATER_RADIUS)
+            temp += (float)Math.sqrt(PhysicsSolver.HEATER_RADIUS * PhysicsSolver.HEATER_RADIUS - dist2) / PhysicsSolver.HEATER_RADIUS * PhysicsSolver.HEATER_TEMPERATURE;
+
+        if (position.y > Main.SCREEN_SIZE.height - r * 5) {
+            //temp += 0.01;
+        }
+
+        temp *= 1 - Math.min(1, PhysicsSolver.HEAT_DISSIPATION / (Math.max(position.y / 100, 0) + 10) * PhysicsSolver.DT);
+    }
+
+    public boolean bounce(Particle other) {
+        if (position.isNaN() || other.position.isNaN()) return false;
+
         float distSquared = position.sub(other.position).mag2();
 
-        if (distSquared > r * r + 2 * r * other.r + other.r * other.r) return;
+        if (distSquared > r * r + 2 * r * other.r + other.r * other.r) return false;
 
         float dist = (float)Math.sqrt(distSquared);
         Vec2D diff = position.sub(other.position).div(dist);
@@ -66,8 +84,9 @@ public class Particle {
 
         float tempDiff = other.temp - temp;
 
-        temp += tempDiff * PhysicsSolver.HEAT_TRANSFER * other.mass / mass;
-        other.temp -= tempDiff * PhysicsSolver.HEAT_TRANSFER * mass / other.mass;
+        temp += tempDiff * PhysicsSolver.HEAT_TRANSFER / PhysicsSolver.COLLISION_SUBSTEPS * other.mass / mass;
+        other.temp -= tempDiff * PhysicsSolver.HEAT_TRANSFER / PhysicsSolver.COLLISION_SUBSTEPS * mass / other.mass;
+        return true;
     }
 
     public Vec2D getVelocity() {
@@ -75,7 +94,7 @@ public class Particle {
     }
 
     public void render(Graphics g) {
-        g.setColor(new Color(Math.max(0, Math.min(1.0f, temp)), Math.max(0, Math.min(1.0f, temp * 0.3f)), 0, 0.5f));
+        g.setColor(new Color(Math.max(0, Math.min(1.0f, temp)), Math.max(0, Math.min(1.0f, temp * 0.3f)), 0));
         g.fillOval((int)(position.x - r), (int)(position.y - r), (int)(r*2), (int)(r*2));
     }
 
