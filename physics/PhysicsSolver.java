@@ -9,26 +9,28 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class PhysicsSolver {
-    public static final float HEAT_TRANSFER = 0.5f;
-    public static final float HEAT_DISSIPATION = 1.0f;
-    public static final float GRAVITY = 0.04f;
-    public static final float HEAT_RISING_STRENGTH = 0.17f;
-    public static final float PARTICLE_RADIUS = 2.5f;
+    public static final float HEAT_TRANSFER = 0.03f;
+    public static final float HEAT_DISSIPATION = 0.2f;
+    public static final float GRAVITY = 0.03f;
+    public static final float HEAT_RISING_STRENGTH = 0.03f;
+    public static final float PARTICLE_RADIUS = 3f;
     public static final short COLLISION_SUBSTEPS = 3;
+    public static final int NUM_PARTICLES = 10000;
+    public static float DT = 0.6f;
+
 
 
 
 
     public static final Vec2D HEATER_POSITION = new Vec2D(Main.SCREEN_SIZE.width/2, Main.SCREEN_SIZE.height);
     public static final float HEATER_RADIUS = 100.0f;
-    public static final float HEATER_TEMPERATURE = 0.1f;
+    public static final float HEATER_TEMPERATURE = 0.3f;
 
 
     public static float wind = 0.0f;
 
 
     public static List<Particle> PARTICLES = new ArrayList<>();
-    public static float DT = 0.1f;
 
     public static void addParticle(float x, float y, float r) {
         PARTICLES.add(new Particle(x, y, r));
@@ -41,7 +43,7 @@ public class PhysicsSolver {
             Particle particle = PARTICLES.get(i);
 
             particle.heat();
-            particle.accelerate((Main.SCREEN_SIZE.width / 2.0f - particle.position.x) / 10000.0f + wind, GRAVITY - particle.temp * HEAT_RISING_STRENGTH);
+            particle.accelerate(wind, GRAVITY - particle.temp * HEAT_RISING_STRENGTH);
             particle.move();
             particle.constrain();
         }

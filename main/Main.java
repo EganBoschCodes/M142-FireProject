@@ -12,7 +12,7 @@ public class Main {
 
     private static PhysicsThread physicsThread = new PhysicsThread();
 
-    public static final Dimension SCREEN_SIZE = new Dimension(800, 1000);
+    public static final Dimension SCREEN_SIZE = new Dimension(1200, 700);
 
 
     public static void initialize() throws InterruptedException {
@@ -23,10 +23,6 @@ public class Main {
         frame.setTitle("M142 Final Project");
         frame.setVisible(true);
 
-        //PhysicsSolver.addParticles(100.0f, 100.0f, 10, 5, 3.0f);
-
-
-
         physicsThread.start();
     }
 
@@ -36,8 +32,7 @@ public class Main {
         long frameCount = 0;
 
         while(true) {
-            if (!frame.frameBuffers.isEmpty())
-                frame.repaint();
+            frame.repaint();
             Thread.sleep(5);
         }
 

@@ -31,13 +31,9 @@ public class Particle {
     }
 
     public void move() {
-        Vec2D velocity = position.sub(lastPosition);
-
-        float velocityMag2 = velocity.mag2();
-
-        accelerate(velocity.mult(-0.001f * velocityMag2));
-
+        Vec2D velocity = position.sub(lastPosition).mult(0.9995f);
         lastPosition.copy(position);
+
         position = position.add(velocity.add(acceleration.mult(PhysicsSolver.DT * PhysicsSolver.DT)));
 
         acceleration = new Vec2D(0, 0);
@@ -45,23 +41,18 @@ public class Particle {
 
     public void constrain() {
         position.x = Math.max(r, Math.min(Main.SCREEN_SIZE.width - r, position.x));
-        position.y = Math.max(-300, Math.min(Main.SCREEN_SIZE.height - r, position.y));
-
-        //if (position.y > Main.SCREEN_SIZE.height - r)
-            //accelerate(0, -(position.y - Main.SCREEN_SIZE.height + r)/10.0f);
-
+        position.y = Math.min(Main.SCREEN_SIZE.height - r, position.y);
     }
 
     public void heat() {
-        if (position.y < -r * 5) { temp *= 0.99; return; }
+        if (position.y < r * 5) temp *= 0.99;
 
-        float dist2 = position.sub(PhysicsSolver.HEATER_POSITION).mag2();
-        if (dist2 < PhysicsSolver.HEATER_RADIUS * PhysicsSolver.HEATER_RADIUS)
-            temp += (float)Math.sqrt(PhysicsSolver.HEATER_RADIUS * PhysicsSolver.HEATER_RADIUS - dist2) / PhysicsSolver.HEATER_RADIUS * PhysicsSolver.HEATER_TEMPERATURE;
+        if (position.y > Main.SCREEN_SIZE.height - r * 4 && Math.abs(position.x - Main.SCREEN_SIZE.width/2) < Main.SCREEN_SIZE.width/3) temp += PhysicsSolver.HEATER_TEMPERATURE * (Math.random() * 10);
 
-        if (position.y > Main.SCREEN_SIZE.height - r * 5) {
-            //temp += 0.01;
-        }
+        //float dist2 = position.sub(PhysicsSolver.HEATER_POSITION).mag2();
+        //if (dist2 < PhysicsSolver.HEATER_RADIUS * PhysicsSolver.HEATER_RADIUS)
+            //temp += (float)Math.sqrt(PhysicsSolver.HEATER_RADIUS * PhysicsSolver.HEATER_RADIUS - dist2) / PhysicsSolver.HEATER_RADIUS * PhysicsSolver.HEATER_TEMPERATURE;
+
 
         temp *= 1 - Math.min(1, PhysicsSolver.HEAT_DISSIPATION / (Math.max(position.y / 100, 0) + 10) * PhysicsSolver.DT);
     }
@@ -94,7 +85,7 @@ public class Particle {
     }
 
     public void render(Graphics g) {
-        g.setColor(new Color(Math.max(0, Math.min(1.0f, temp)), Math.max(0, Math.min(1.0f, temp * 0.3f)), 0));
+        g.setColor(new Color(Math.max(0, Math.min(1.0f, temp * 0.5f)), Math.max(0, Math.min(1.0f, temp * 0.15f)), 0));
         g.fillOval((int)(position.x - r), (int)(position.y - r), (int)(r*2), (int)(r*2));
     }
 
